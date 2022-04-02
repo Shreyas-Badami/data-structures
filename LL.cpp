@@ -16,12 +16,12 @@ private:
 public:
     linklist()
     { head = NULL; }
-    void insert(T d);
+    void insertAtHead(T d);
     void displayLL();
 };
 
 template <class T>
-void linklist<T>::insert(T d)
+void linklist<T>::insertAtHead(T d)
 {
     Node<T> *newNode = new Node<T>;
     newNode->data = d;
@@ -43,9 +43,9 @@ void linklist<T>::displayLL()
 int main()
 {
     linklist<int> l;
-    l.insert(2);
-    l.insert(6);
+    l.insertAtHead(2);
+    l.insertAtHead(6);
     l.displayLL();
-    l.insert(7);
+    l.insertAtHead(7);
     l.displayLL();
 }
