@@ -3,30 +3,39 @@
 #include <stdio.h>
 #include <assert.h>
 
-void insert(struct my_dll* list, int data)
+void insert_impl(struct my_dll* list, struct Node *node)
 {
-    struct Node *node = (struct Node*)malloc(sizeof(struct Node));
-    node->data = data;
-    node->next = NULL;
     node->prev = list->tail;
     if (list->size != 0)
     {
-        node->prev->next = node;
+        list->tail->next = node;
     }
-    list->tail = node;
-    if (list->size == 0)
+    else
     {
         list->root = node;
     }
+    list->tail = node;
     list->size++;
+}
+
+void insert(struct my_dll* list, int data)
+{
+    struct Node *node = (struct Node*)calloc(1, sizeof(struct Node));
+    assert(node != NULL);
+    node->data = data;
+    insert_impl(list, node);
 }
 
 void insert_at(struct my_dll* list, int data, int index)
 {
+    if (index > list->size || index < 0)
+    {
+        return;
+    }
+    struct Node *node = (struct Node*)calloc(1, sizeof(struct Node));
+    node->data = data;
     if (index == 0)
     {
-        struct Node *node = (struct Node*)malloc(sizeof(struct Node));
-        node->data = data;
         list->root->prev = node;
         node->prev = NULL;
         node->next = list->root;
@@ -34,12 +43,10 @@ void insert_at(struct my_dll* list, int data, int index)
     }
     else if (index == list->size)
     {
-        insert(list, data);
+        insert_impl(list, node);
     }
     else
     {
-        struct Node *node = (struct Node*)malloc(sizeof(struct Node));
-        node->data = data;
         struct Node *currNode = list->root;
         struct Node *prevNode = NULL;
         for (int i = 0; i < index; i++)
@@ -57,6 +64,10 @@ void insert_at(struct my_dll* list, int data, int index)
 
 void delete(struct my_dll* list, int index)
 {
+    if (index > list->size || index < 0)
+    {
+        return;
+    }
     if (index == 0)
     {
         struct Node *temp = list->root;
@@ -64,7 +75,7 @@ void delete(struct my_dll* list, int index)
         list->root->prev = NULL;
         free(temp);
     }
-    else if(index == list->size-1)
+    else if (index == list->size-1)
     {
         struct Node *temp = list->tail;
         list->tail = temp->prev;
@@ -114,13 +125,39 @@ void prune(struct my_dll* list)
     }
     else
     {
-        int numTermsToDelete = list->size/2;
-        int index = 1;
-        for (int i = 0; i < numTermsToDelete; i++)
+        struct Node* currNode = list->root;
+        /*
+        while (currNode->next != NULL && currNode->next->next != NULL)
         {
-            delete(list, index);
-            index++;
+            currNode = currNode->next->next;
+            struct Node* temp = currNode->prev;
+            currNode->prev = temp->prev;
+            temp->prev->next = currNode;
+            free(temp);
+            list->size--;
         }
+        */
+       int index = 0;
+       while (currNode != NULL)
+       {
+           struct Node* temp = currNode;
+           currNode = currNode->next;
+           if (index % 2 == 1)
+           {
+               temp->prev->next = temp->next;
+               if (temp->next != NULL)
+               {
+                   temp->next->prev = temp->prev;
+               }
+               else if (list->tail == temp)
+               {
+                   list->tail = temp->prev;
+               }
+               free(temp);
+               list->size--;
+           }
+           index++;
+       }
     }
 }
 

@@ -5,7 +5,7 @@
 
 int main()
 {
-    struct my_dll* list = (struct my_dll*)malloc(sizeof(struct my_dll));
+    struct my_dll* list = (struct my_dll*)calloc(1, sizeof(struct my_dll));
     list->root = NULL;
     list->tail = NULL;
     list->size = 0;
